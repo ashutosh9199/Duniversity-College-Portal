@@ -1,0 +1,57 @@
+version: "3.8"
+
+name: duniversity-college-portal
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: college-portal-app
+    env_file:
+      - .env
+    environment:
+      NODE_ENV: "${NODE_ENV:-production}"
+      
+      DB_HOST: "${DB_HOST:-mariadb}"
+      DB_PORT: "${DB_PORT:-3306}"
+      DB_USER: "${DB_USER:-college_user}"
+      DB_PASSWORD: "${DB_PASSWORD:-deereddy@123}"
+      
+      GRIEVANCE_DB: "${GRIEVANCE_DB:-grievance_db}"
+      LEAVE_DB: "${LEAVE_DB:-leave_db}"
+      TIMETABLE_DB: "${TIMETABLE_DB:-timetable_db}"
+      EXAMS_DB: "${EXAMS_DB:-exams_db}"
+      
+      PORT: "${PORT:-3000}"
+    depends_on:
+      mariadb:
+        condition: service_healthy
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
+
+  mariadb:
+    image: mariadb:11.4
+    container_name: college-portal-mariadb
+    environment:
+      
+      MYSQL_ROOT_PASSWORD: "${MARIADB_ROOT_PASSWORD}"
+      
+      MYSQL_USER: "${DB_USER}"
+      MYSQL_PASSWORD: "${DB_PASSWORD}"
+    volumes:
+      - db_data:/var/lib/mysql
+     
+      - ./db/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "mariadb-admin ping -h localhost -p$MYSQL_ROOT_PASSWORD --silent"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    ports:
+      - "3306:3306"
+    restart: unless-stopped
+
+volumes:
+  db_data:
