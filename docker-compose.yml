@@ -5,7 +5,7 @@ name: duniversity-college-portal
 services:
   app:
     build:
-      context: .
+      context: ./public/college-portal
       dockerfile: Dockerfile
     container_name: college-portal-app
     env_file:
