@@ -1,0 +1,65 @@
+version: "3.8"
+
+name: duniversity-college-portal
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: college-portal-app
+   
+    env_file:
+      - .env
+   
+    environment:
+      
+      DB_HOST: db
+      DB_PORT: "3306"
+      
+      DB_USER: "${DB_USER:-appuser}"
+      DB_PASSWORD: "${DB_PASSWORD:-apppassword}"
+      DB_NAME: "${DB_NAME:-college_portal}"
+      PORT: "${PORT:-3000}"
+      NODE_ENV: "${NODE_ENV:-production}"
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
+    
+   
+
+  db:
+    image: mysql:8.0
+    container_name: college-portal-db
+    command: [
+      "mysqld",
+      "--default-authentication-plugin=mysql_native_password",
+      "--character-set-server=utf8mb4",
+      "--collation-server=utf8mb4_unicode_ci"
+    ]
+    environment:
+      MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD:-rootpassword}"
+      MYSQL_DATABASE: "${DB_NAME:-college_portal}"
+      MYSQL_USER: "${DB_USER:-appuser}"
+      MYSQL_PASSWORD: "${DB_PASSWORD:-apppassword}"
+    volumes:
+      
+      - db_data:/var/lib/mysql
+      
+      - ./db/init:/docker-entrypoint-initdb.d:ro
+     
+      
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -p$MYSQL_ROOT_PASSWORD --silent"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    ports:
+      - "3306:3306"
+    restart: unless-stopped
+
+volumes:
+  db_data:
