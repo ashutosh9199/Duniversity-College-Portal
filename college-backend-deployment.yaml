@@ -6,11 +6,8 @@ metadata:
 spec:
   replicas: 3
   minReadySeconds: 10
-  strategy:
+  updateStrategy:
     type: RollingUpdate
-    rollingUpdate:
-      maxUnavailable: 25%
-      maxSurge: 25%
   selector:
     matchLabels:
       app: my-sql
@@ -83,15 +80,15 @@ spec:
               mountPath: /var/lib/mysql
             - name: config-volume
               mountPath: /docker-entrypoint-initdb.d
-      volumeClaimTemplates:
-      - metadata:
-          name:  ashut-vct
-        spec: my-storage-class
-          accessModes: [ "ReadWriteMany" ]
-          resources:
-            requests:
-              storage: 2Gi
-        
+  volumeClaimTemplates:
+  - metadata: mariadb-storage
+      name: 
+    spec:
+      accessModes: [ "ReadWriteMany" ]
+      resources:
+        requests:
+          storage: 2Gi
+      storageClassName: my-storage-class
 ---
 apiVersion: v1
 kind: Service
@@ -104,4 +101,4 @@ spec:
   ports:
     - port: 3306
       targetPort: 3306
-  ClusterIP: None
+  clusterIP: None
