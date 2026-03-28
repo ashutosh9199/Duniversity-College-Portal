@@ -1,92 +1,47 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: duniversity-deployment
-  namespace: gateway-ns
+  name: college-deploy
 spec:
-  replicas: 1
+  replicas: 3
   strategy:
     type: RollingUpdate
     rollingUpdate:
-      maxUnavailable: 25%
       maxSurge: 25%
+      maxUnavailable: 25%
   selector:
     matchLabels:
-      app: duniversity
+      app: college-app
   template:
     metadata:
       labels:
-        app: duniversity
+        app: college-app
     spec:
       containers:
-        - name: duniversity
-          image: asadoblivion/duniversity-college-portal:v1.0
+        - name: college-cont
+          image: ashutosh4782/duniversity-college-portal-backend:latest
           ports:
             - containerPort: 3000
           resources:
-            limits:
-              memory: "512Mi"
-              cpu: "500m"
             requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "200m"
               memory: "256Mi"
-              cpu: "250m"
-          env:
-            - name: MARIADB_ROOT_PASSWORD
-              valueFrom:
-                configMapKeyRef:
-                  name: duniversity-config
-                  key: MARIADB_ROOT_PASSWORD
-            - name: DB_USER
-              valueFrom:
-                configMapKeyRef:
-                  name: duniversity-config
-                  key: DB_USER
-            - name: DB_PASSWORD
-              valueFrom:
-                configMapKeyRef:
-                  name: duniversity-config
-                  key: DB_PASSWORD
-            - name: DB_HOST
-              valueFrom:
-                configMapKeyRef:
-                  name: duniversity-config
-                  key: DB_HOST
-            - name: DB_PORT
-              valueFrom:
-                configMapKeyRef:
-                  name: duniversity-config
-                  key: DB_PORT
-            - name: GRIEVANCE_DB
-              valueFrom:
-                configMapKeyRef:
-                  name: duniversity-config
-                  key: GRIEVANCE_DB
-            - name: LEAVE_DB
-              valueFrom:
-                configMapKeyRef:
-                  name: duniversity-config
-                  key: LEAVE_DB
-            - name: TIMETABLE_DB
-              valueFrom:
-                configMapKeyRef:
-                  name: duniversity-config
-                  key: TIMETABLE_DB
-            - name: EXAMS_DB
-              valueFrom:
-                configMapKeyRef:
-                  name: duniversity-config
-                  key: EXAMS_DB
----
+          envFrom:
+            - configMapRef:
+                name: app-config
 
+---
 apiVersion: v1
 kind: Service
 metadata:
-  name: duniversity-service
-  namespace: gateway-ns
+  name: app-service
 spec:
   selector:
-    app: duniversity
-  ports:
-    - port: 80
-      targetPort: 3000
+    app: college-app   # ✅ FIXED
   type: ClusterIP
+  ports:
+    - port: 3000
+      targetPort: 3000
