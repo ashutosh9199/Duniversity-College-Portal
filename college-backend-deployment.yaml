@@ -5,9 +5,11 @@ metadata:
   namespace: gateway-ns
 spec:
   replicas: 3
-  minReadySeconds: 10
-  updateStrategy:
+  strategy:
     type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 25%
+      maxSurge: 25%
   selector:
     matchLabels:
       app: my-sql
@@ -16,7 +18,6 @@ spec:
       labels:
         app: my-sql
     spec:
-      terminationGracePeriodSeconds: 10
       containers:
         - name: my-sql
           image: mariadb:latest
@@ -80,15 +81,13 @@ spec:
               mountPath: /var/lib/mysql
             - name: config-volume
               mountPath: /docker-entrypoint-initdb.d
-  volumeClaimTemplates:
-  - metadata:
-      name: mariadb-storage
-    spec:
-      accessModes: [ "ReadWriteMany" ]
-      resources:
-        requests:
-          storage: 2Gi
-      storageClassName: my-storage-class
+      volumes:
+        - name: mariadb-storage
+          persistentVolumeClaim:
+            claimName: mariadb-pvc
+        - name: config-volume
+          configMap:
+            name: mariadb-init-script
 ---
 apiVersion: v1
 kind: Service
@@ -101,4 +100,4 @@ spec:
   ports:
     - port: 3306
       targetPort: 3306
-  clusterIP: None
+  type: ClusterIP
