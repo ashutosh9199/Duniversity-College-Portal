@@ -1,12 +1,8 @@
-apiVersion: v1
-kind: PersistentVolumeClaim
+apiVersion:  storage.k8s.io/v1
+kind:  StorageClass
 metadata:
-  name: test-pvc
-  namespace: gateway-ns
-spec:
-  accessModes:
-    - ReadWriteMany
-  resources:
-    requests:
-      storage: 1Gi
-  storageClassName: my-storage-class
+  name:  college-nfs-stateful
+provisioner:  nfs.csi.k8s.io
+parameters:
+  server:  13.203.210.47   
+  share:  /var/nfs/general
