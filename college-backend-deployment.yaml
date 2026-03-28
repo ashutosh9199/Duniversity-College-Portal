@@ -86,8 +86,8 @@ spec:
       volumeClaimTemplates:
       - metadata:
           name:  ashut-vct
-        spec:
-          accessModes: [ "ReadWriteOnce" ]
+        spec: my-storage-class
+          accessModes: [ "ReadWriteMany" ]
           resources:
             requests:
               storage: 2Gi
@@ -104,4 +104,4 @@ spec:
   ports:
     - port: 3306
       targetPort: 3306
-  type: ClusterIP
+  ClusterIP: None
