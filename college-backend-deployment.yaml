@@ -81,8 +81,8 @@ spec:
             - name: config-volume
               mountPath: /docker-entrypoint-initdb.d
   volumeClaimTemplates:
-  - metadata: mariadb-storage
-      name: 
+  - metadata:
+      name: mariadb-storage
     spec:
       accessModes: [ "ReadWriteMany" ]
       resources:
