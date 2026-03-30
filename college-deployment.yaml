@@ -18,10 +18,12 @@ spec:
         app: college-app
     spec:
       containers:
-        - name: college-cont
-          image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
+        - name: college-deploy
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           ports:
-            - containerPort: {{ .Values.ports.containerPort }}
+    {{- range .Values.ports }}
+            - containerPort: {{ .containerPort }}
+    {{- end }}
           resources:
             requests:
               cpu: "100m"
