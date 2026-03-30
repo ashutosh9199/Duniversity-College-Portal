@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Values.app.name}}
+  name: {{ .Values.app.name }}
 spec:
   replicas: {{ .Values.replicaCount }}
   strategy:
@@ -11,19 +11,19 @@ spec:
       maxUnavailable: 25%
   selector:
     matchLabels:
-      app: college-app
+      app: {{ .Values.app.name }}
   template:
     metadata:
       labels:
-        app: college-app
+        app: {{ .Values.app.name }}
     spec:
       containers:
-        - name: college-deploy
+        - name: {{ .Values.app.name }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           ports:
-    {{- range .Values.ports }}
+{{- range .Values.ports }}
             - containerPort: {{ .containerPort }}
-    {{- end }}
+{{- end }}
           resources:
             requests:
               cpu: "100m"
@@ -34,15 +34,14 @@ spec:
           envFrom:
             - configMapRef:
                 name: app-config
-
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: app-service
+  name: {{ .Values.app.name }}-service
 spec:
   selector:
-    app: college-app   # ✅ FIXED
+    app: {{ .Values.app.name }}
   type: ClusterIP
   ports:
     - port: 3000
